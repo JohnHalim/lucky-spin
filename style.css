@@ -1,0 +1,140 @@
+:root {
+  --bg: #070718;
+  --violet: #7c3aed;
+  --blue: #2563eb;
+  --cyan: #22d3ee;
+  --gold: #fbbf24;
+  --pink: #e879f9;
+  --size: min(88vw, 430px, 56dvh); /* حجم العجلة */
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+[hidden] { display: none !important; }
+
+body {
+  font-family: 'Cairo', 'Segoe UI', Tahoma, sans-serif;
+  color: #fff;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+  background:
+    radial-gradient(900px 520px at 50% -8%, rgba(124, 58, 237, .45), transparent),
+    radial-gradient(700px 480px at 100% 100%, rgba(34, 211, 238, .22), transparent),
+    var(--bg);
+}
+/* نجوم خفيفة في الخلفية */
+body::before {
+  content: ""; position: fixed; inset: 0; pointer-events: none; opacity: .5;
+  background-image:
+    radial-gradient(1.5px 1.5px at 20px 30px, #fff, transparent),
+    radial-gradient(1px 1px at 90px 80px, #9bdcff, transparent),
+    radial-gradient(1.5px 1.5px at 150px 20px, #fff, transparent),
+    radial-gradient(1px 1px at 60px 140px, #f0abfc, transparent);
+  background-size: 180px 180px;
+}
+
+.stage {
+  position: relative; min-height: 100dvh;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; text-align: center;
+  padding: max(14px, env(safe-area-inset-top)) 16px max(14px, env(safe-area-inset-bottom));
+}
+
+.title {
+  font-size: clamp(2.2rem, 9vw, 3.4rem); font-weight: 900; line-height: 1.2;
+  background: linear-gradient(90deg, var(--cyan), var(--pink), var(--gold));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+  filter: drop-shadow(0 0 14px rgba(232, 121, 249, .55));
+}
+.subtitle { font-size: clamp(1rem, 4.2vw, 1.25rem); font-weight: 600; color: #cbd5ff; }
+
+/* ---------- العجلة ---------- */
+.wheel-wrap {
+  position: relative; width: var(--size); height: var(--size); margin: 18px 0 8px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg, var(--violet), var(--cyan), var(--pink), var(--gold), var(--violet));
+  box-shadow: 0 0 36px rgba(124, 58, 237, .7), 0 0 90px rgba(34, 211, 238, .25);
+}
+.wheel-wrap::before { /* حلقة داكنة بين الإطار والعجلة */
+  content: ""; position: absolute; inset: 3.2%; border-radius: 50%; background: #0b0b2b;
+}
+.wheel {
+  position: absolute; inset: 6%; border-radius: 50%;
+  will-change: transform; transform: rotate(0deg);
+  filter: drop-shadow(0 0 10px rgba(0, 0, 0, .6));
+}
+.wheel svg { width: 100%; height: 100%; display: block; }
+
+.bulb { /* لمبات الإطار */
+  position: absolute; width: 2.6%; height: 2.6%; border-radius: 50%;
+  transform: translate(-50%, -50%); background: #fff;
+  box-shadow: 0 0 8px 2px var(--gold); animation: blink 1.2s infinite;
+}
+.bulb:nth-child(odd) { animation-delay: .6s; background: #ffe9a8; }
+@keyframes blink { 50% { opacity: .35; box-shadow: 0 0 3px 1px var(--gold); } }
+
+.pointer { /* المؤشر الثابت */
+  position: absolute; z-index: 3; top: -3.5%; left: 50%; transform: translateX(-50%);
+  width: 0; height: 0;
+  border-left: calc(var(--size) * .052) solid transparent;
+  border-right: calc(var(--size) * .052) solid transparent;
+  border-top: calc(var(--size) * .1) solid var(--gold);
+  filter: drop-shadow(0 0 8px var(--gold)) drop-shadow(0 3px 2px rgba(0, 0, 0, .6));
+}
+.hub {
+  position: absolute; z-index: 2; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 17%; height: 17%; border-radius: 50%; display: grid; place-items: center;
+  font-size: calc(var(--size) * .075);
+  background: radial-gradient(circle at 35% 30%, #fff3c4, var(--gold) 55%, #b45309);
+  border: 3px solid #fff; box-shadow: 0 0 18px var(--gold);
+}
+
+/* ---------- الأزرار ---------- */
+.spin-btn, .btn-main {
+  font: inherit; font-weight: 900; font-size: 1.3rem; color: #fff; cursor: pointer;
+  border: 0; border-radius: 999px; padding: 14px 40px; min-width: 240px; text-decoration: none;
+  display: inline-block;
+  background: linear-gradient(135deg, var(--violet), var(--blue) 55%, var(--cyan));
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, .25) inset, 0 8px 28px rgba(37, 99, 235, .55), 0 0 30px rgba(124, 58, 237, .6);
+  transition: transform .15s, filter .15s;
+}
+.spin-btn:not(:disabled) { animation: pulse 1.8s ease-in-out infinite; }
+.spin-btn:not(:disabled):active, .btn-main:active { transform: scale(.96); }
+.spin-btn:disabled { filter: grayscale(.7) brightness(.7); cursor: not-allowed; }
+@keyframes pulse { 50% { transform: scale(1.05); } }
+:focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+
+.hint { color: #a5b4fc; font-weight: 600; }
+.note { font-size: .85rem; color: #7f8bbd; }
+
+/* ---------- نافذة النتيجة ---------- */
+.modal {
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 18px;
+  background: rgba(3, 3, 16, .78); backdrop-filter: blur(5px);
+}
+.card {
+  width: min(92vw, 380px); text-align: center; padding: 26px 22px 22px; border-radius: 26px;
+  background: linear-gradient(160deg, #1b1650, #0c0c2e);
+  border: 2px solid rgba(251, 191, 36, .75);
+  box-shadow: 0 0 40px rgba(124, 58, 237, .65), 0 0 90px rgba(251, 191, 36, .2);
+  animation: pop .45s cubic-bezier(.2, 1.4, .4, 1);
+}
+@keyframes pop { from { transform: scale(.6); opacity: 0; } }
+.m-icon { font-size: 4.6rem; line-height: 1.1; animation: bob 1.6s ease-in-out infinite; }
+@keyframes bob { 50% { transform: translateY(-8px) rotate(-6deg); } }
+.card h2 { font-size: 1.7rem; font-weight: 900; color: var(--gold); margin: 6px 0; line-height: 1.3; }
+.m-prize {
+  display: inline-block; margin: 4px 0 8px; padding: 6px 18px; border-radius: 999px;
+  font-weight: 800; font-size: 1.15rem; background: rgba(34, 211, 238, .15); border: 1px solid var(--cyan); color: #b6f3ff;
+}
+.m-msg { font-size: 1.1rem; font-weight: 600; margin-bottom: 18px; color: #e5e9ff; }
+.btn-main { width: 100%; font-size: 1.15rem; padding: 13px 18px; min-width: 0; }
+.btn-alt {
+  font: inherit; font-weight: 700; margin-top: 12px; padding: 8px 20px; border-radius: 999px; cursor: pointer;
+  color: #cbd5ff; background: transparent; border: 1px solid rgba(203, 213, 255, .4);
+}
+
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; z-index: 100; pointer-events: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .bulb, .spin-btn, .m-icon, .card { animation: none !important; }
+}
